@@ -15,6 +15,30 @@ struct Carte{
 
 
     void lectureFichier(){
+        std::ifstream fileIni("carte.txt");
+        int nbL=0;
+        int nbC =0;
+        if (fileIni.is_open()) {
+            std::string line;
+            nbL=0;
+            nbC =0;
+            while (getline(fileIni, line)) {
+                nbL++;
+                if(line.length()>nbC){
+                    nbC = line.length();
+                }
+            }
+        }
+        fileIni.close();
+
+        map = new char*[nbL];
+        hauteur = nbL;
+        largeur = nbC;
+        for (int i = 0; i < nbL ; ++i) {
+            map[i]= new char[nbL];
+        }
+
+
         std::ifstream file("carte.txt");
         if (file.is_open()) {
             std::string line;
@@ -30,6 +54,7 @@ struct Carte{
             file.close();
         }
     }
+
 
     void afficher(){
         for(int i = 0; i<largeur; i++){
@@ -57,9 +82,27 @@ struct Carte{
             }
         }
     }
+    int peutSeDeplacer(int x, int y){
+        int res = 1;
+        x=x/hauteur;
+        y=y/largeur;
+        //printf("%i , %i\n",x,y );
+        //printf("%c : map \n",map[x][y] );
+
+        if(map[x][y]=='1'){
+            //printf("odbouzh\n");
+            res=0;
+        }
+        return res;
+    }
+
     SDL_Rect position;
-    int hauteur = 20;
-    int largeur = 20;
-    char map[20][20];
-    //dynamique
+    int hauteur;
+    int largeur;
+    char ** map;
 };
+
+// liste chainer
+// maloc
+// ecriture fichier
+// erreur lecture de fichier
