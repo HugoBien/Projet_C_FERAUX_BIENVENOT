@@ -84,10 +84,15 @@ struct Carte{
     }
     int peutSeDeplacer(int x, int y){
         int res = 1;
-        x=x/hauteur;
-        y=y/largeur;
-        printf("%i , %i\n",x,y );
-        printf("%c : map \n",map[x][y] );
+        printf("X : %i, Y: %i\n",x,y);
+        float px=static_cast< float >(x);
+        px = px/640*largeur;
+        float py=static_cast< float >(y);
+        py = py/640*hauteur;
+        printf("%i , %i _ hauteur : %i, largeur : %i\n",static_cast<int>(px),static_cast<int>(py),hauteur,largeur );
+        //printf("%c : map \n",map[x][y] );
+        x = static_cast<int>(px);
+        y = static_cast<int>(py);
         if(map[x][y]=='1'){
             res=0;
         }
