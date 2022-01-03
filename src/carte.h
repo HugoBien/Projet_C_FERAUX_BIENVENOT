@@ -86,11 +86,9 @@ struct Carte{
         int res = 1;
         x=x/hauteur;
         y=y/largeur;
-        //printf("%i , %i\n",x,y );
-        //printf("%c : map \n",map[x][y] );
-
+        printf("%i , %i\n",x,y );
+        printf("%c : map \n",map[x][y] );
         if(map[x][y]=='1'){
-            //printf("odbouzh\n");
             res=0;
         }
         return res;
