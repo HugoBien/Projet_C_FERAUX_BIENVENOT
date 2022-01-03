@@ -11,7 +11,7 @@ void SDL_ExitWithError(const char *string);
 #include <SDL.h>
 #include "carte.h"
 #include "player.h"
-#include <fstream>
+
 
 void clean_resources(SDL_Window *w, SDL_Renderer *r, SDL_Texture *t){
     if(t != NULL){
@@ -25,9 +25,21 @@ void clean_resources(SDL_Window *w, SDL_Renderer *r, SDL_Texture *t){
     }
     SDL_Quit();
 }
-void main_loop(SDL_Renderer *renderer){
+
+
+void redraw(SDL_Surface *screen, Carte carte, Player player,std::string background,SDL_Renderer *renderer,SDL_Rect dest_rect,
+            SDL_Texture *texture){
+
+    screen = SDL_LoadBMP((std::string(RESOURCES_DIR) + background).c_str());
+    carte.changerCarte(screen);
+    player.draw(screen);
+    texture = SDL_CreateTextureFromSurface(renderer, screen);
+    SDL_QueryTexture(texture, NULL, NULL, &dest_rect.w, &dest_rect.h);
+    SDL_RenderCopy(renderer, texture, NULL, &dest_rect);
+    SDL_RenderPresent(renderer);
 
 }
+
 
 int main(int argc, char **argv) {
     SDL_Window *window = NULL;
@@ -35,12 +47,14 @@ int main(int argc, char **argv) {
     SDL_Surface *screen = NULL;
     SDL_Texture *texture = NULL;
     SDL_Rect dest_rect = {0, 0, 640, 480};
-    //SDL_Rect positionJoueur;
+    SDL_Rect positionSouris;
     SDL_Surface *joueur;
-    SDL_Surface *mapSprite;
-    //positionJoueur.x=150;
-    //positionJoueur.y=150;
     SDL_Event event;
+
+    // initialisation des sprites
+
+    std::string menu ="menu.bmp";
+    std::string background = "background.bmp";
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         SDL_ExitWithError("Erreur Init SDL");
@@ -53,32 +67,13 @@ int main(int argc, char **argv) {
     if (renderer == NULL)
         SDL_ExitWithError("init render");
 
-// initialisation des sprites
 
-    std::string filename = "background.bmp";
-    std::string test = "bloc1.bmp";
-    std::string sprite = "droite.bmp";
-
-    screen = SDL_LoadBMP((std::string(RESOURCES_DIR) + filename).c_str());
-    joueur = SDL_LoadBMP((std::string(RESOURCES_DIR) + sprite).c_str());
+    screen = SDL_LoadBMP((std::string(RESOURCES_DIR) + menu).c_str());
 
     if (screen == NULL)
         SDL_ExitWithError("Init picture ");
 
-
-//Creation carte
-
-    Carte carte(renderer);
-    carte.lectureFichier();
-    carte.changerCarte(screen);
-
-//Affichage du joueur + background
-
-    Player player(renderer);
-    player.draw(screen);
-    //SDL_BlitSurface(joueur, NULL, screen, &positionJoueur);
     texture = SDL_CreateTextureFromSurface(renderer, screen);
-
 
     if (SDL_QueryTexture(texture, NULL, NULL, &dest_rect.w, &dest_rect.h) != 0)
         SDL_ExitWithError("SDL_QueryTexture ");
@@ -86,14 +81,57 @@ int main(int argc, char **argv) {
     if (SDL_RenderCopy(renderer, texture, NULL, &dest_rect) != 0)
         SDL_ExitWithError("SDL_RenderCopy");
 
+// creation du joueur et de la carte
+
+    Player player(renderer);
+    Carte carte(renderer);
+    carte.lectureFichier();
+
+// affichage du menu
+
     SDL_RenderPresent(renderer);
 
-    double maxX = 10;
-    double maxY = 10;
-    double ax = 0.25;
-    double vx = 0;
-    double vy = 0;
+// gestion du menu
 
+    int continuerMenu=1;
+    while(continuerMenu==1){
+        SDL_WaitEvent(&event);
+        switch (event.type) {
+            case SDL_QUIT:
+                SDL_FreeSurface(joueur);
+                SDL_FreeSurface(screen);
+                clean_resources(window, renderer, texture);
+                break;
+            case SDL_MOUSEMOTION:
+                SDL_GetMouseState(&positionSouris.x,&positionSouris.y);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        // commencer une nouvelle partie
+                        if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 299 && positionSouris.y >= 245){
+                            continuerMenu=0;
+                        }
+                        // continuer la partie
+                        else if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 385 && positionSouris.y >= 331){
+                            player.lirePosition();
+                            continuerMenu=0;
+                        }
+                        // quitter le jeu
+                        else if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 468 && positionSouris.y >= 414){
+                            SDL_FreeSurface(joueur);
+                            SDL_FreeSurface(screen);
+                            clean_resources(window, renderer, texture);
+                        }
+                        break;
+                }
+
+            case SDL_MOUSEBUTTONUP:
+                break;
+        }
+    }
+
+    redraw(screen,carte,player,background,renderer,dest_rect,texture);
 
     int continuer = 1;
     while (continuer) {
@@ -122,28 +160,24 @@ int main(int argc, char **argv) {
                     case SDLK_DOWN:
                         player.deplacerBas(carte);
                         break;
+
                     case SDLK_ESCAPE:
                         continuer = 0;
                         break;
                 }
-                screen = SDL_LoadBMP((std::string(RESOURCES_DIR) + filename).c_str());
-                carte.changerCarte(screen);
-                player.draw(screen);
-                texture = SDL_CreateTextureFromSurface(renderer, screen);
-                SDL_QueryTexture(texture, NULL, NULL, &dest_rect.w, &dest_rect.h);
-                SDL_RenderCopy(renderer, texture, NULL, &dest_rect);
-                SDL_RenderPresent(renderer);
+                redraw(screen,carte,player,background,renderer,dest_rect,texture);
                 break;
         }
     }
 
-
-
+    player.ecrirePosition();
     SDL_FreeSurface(joueur);
     SDL_FreeSurface(screen);
     clean_resources(window, renderer, texture);
     return EXIT_SUCCESS;
 }
+
+
 
 
 void SDL_ExitWithError(const char *string) {
