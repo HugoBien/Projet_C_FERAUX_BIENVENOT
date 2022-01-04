@@ -112,12 +112,12 @@ int main(int argc, char **argv) {
                         if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 299 && positionSouris.y >= 245){
                             continuerMenu=0;
                         }
-                        // continuer la partie
+                            // continuer la partie
                         else if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 385 && positionSouris.y >= 331){
                             player.lirePosition();
                             continuerMenu=0;
                         }
-                        // quitter le jeu
+                            // quitter le jeu
                         else if(positionSouris.x>=177 && positionSouris.x<=452 && positionSouris.y <= 468 && positionSouris.y >= 414){
                             SDL_FreeSurface(joueur);
                             SDL_FreeSurface(screen);
@@ -146,19 +146,19 @@ int main(int argc, char **argv) {
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
                     case SDLK_RIGHT:
-                        player.deplacerDroite(carte);
+                        carte = player.deplacerDroite(carte);
                         break;
 
                     case SDLK_LEFT:
-                        player.deplacerGauche(carte);
+                        carte = player.deplacerGauche(carte);
                         break;
 
                     case SDLK_UP:
-                        player.deplacerHaut(carte);
+                        carte = player.deplacerHaut(carte);
                         break;
 
                     case SDLK_DOWN:
-                        player.deplacerBas(carte);
+                        carte = player.deplacerBas(carte);
                         break;
 
                     case SDLK_ESCAPE:

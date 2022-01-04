@@ -4,14 +4,24 @@
 #endif //SDL2_DEMO_CARTE_H
 #include <SDL.h>
 #include <fstream>
+#include "pile.h"
 
 struct Carte{
     Carte(SDL_Renderer *renderer) : renderer(renderer){
+
+        pileDePiece = new_Pile();
+        pileDePiece = empile(pileDePiece, 15,15);
+        pileDePiece = empile(pileDePiece, 10,2);
+        pileDePiece = empile(pileDePiece, 8,8);
+        pileDePiece = empile(pileDePiece, 7,5);
+
+
 
     }
     SDL_Renderer *renderer; // draw here
     SDL_Surface *bloc1 = SDL_LoadBMP((std::string(RESOURCES_DIR) + "bloc1.bmp").c_str());
     SDL_Surface *bloc2 = SDL_LoadBMP((std::string(RESOURCES_DIR) + "bloc2.bmp").c_str());
+    SDL_Surface *piece = SDL_LoadBMP((std::string(RESOURCES_DIR) + "piece.bmp").c_str());
 
 
     void lectureFichier(){
@@ -65,6 +75,7 @@ struct Carte{
         }
     }
     void changerCarte(SDL_Surface *surface){
+
         for(int i = 0; i<largeur;i++){
             for(int j = 0; j<hauteur;j++){
                 position.x=i*32;
@@ -81,21 +92,34 @@ struct Carte{
                 }
             }
         }
+
+        if (!est_vide_Pile(pileDePiece)){
+            position.x=pileDePiece->posX*32;
+            position.y=pileDePiece->posY*32;
+
+            SDL_BlitSurface(piece,NULL,surface,&position);
+        }
     }
     int peutSeDeplacer(int x, int y){
         int res = 1;
-        printf("X : %i, Y: %i\n",x,y);
+        //printf("X : %i, Y: %i\n",x,y);
         float px=static_cast< float >(x);
         px = px/640*largeur;
         float py=static_cast< float >(y);
         py = py/640*hauteur;
-        printf("%i , %i _ hauteur : %i, largeur : %i\n",static_cast<int>(px),static_cast<int>(py),hauteur,largeur );
+        //printf("%i , %i _ hauteur : %i, largeur : %i\n",static_cast<int>(px),static_cast<int>(py),hauteur,largeur );
         //printf("%c : map \n",map[x][y] );
         x = static_cast<int>(px);
         y = static_cast<int>(py);
         if(map[x][y]=='1'){
             res=0;
         }
+        if(!est_vide_Pile(pileDePiece)) {
+            if ((pileDePiece->posX == x || pileDePiece->posX == x+1) && (pileDePiece->posY == y || pileDePiece->posY == y+1)) {
+                pileDePiece = depile(pileDePiece);
+            }
+        }
+
         return res;
     }
 
@@ -103,6 +127,7 @@ struct Carte{
     int hauteur;
     int largeur;
     char ** map;
+    Pile *pileDePiece;
 };
 
 // liste chainer

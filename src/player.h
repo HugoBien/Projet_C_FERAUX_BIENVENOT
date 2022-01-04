@@ -34,8 +34,8 @@ struct Player {
         SDL_BlitSurface(joueur, NULL, screen, &positionJoueur);
     }
 
-    void deplacerDroite(Carte carte) {
-        if (carte.peutSeDeplacer(positionJoueur.x + 1 + vx, positionJoueur.y) == 1) {
+    Carte deplacerDroite(Carte carte) {
+        if (carte.peutSeDeplacer(positionJoueur.x + 1 + 42+ vx, positionJoueur.y) == 1) {
             if (vx < maxX) {
                 vx += ax;
             }
@@ -43,9 +43,10 @@ struct Player {
             SDL_RenderClear(renderer);
             joueur = SDL_LoadBMP((std::string(RESOURCES_DIR) + droite).c_str());
         }
+        return carte;
     }
 
-    void deplacerGauche(Carte carte) {
+    Carte deplacerGauche(Carte carte) {
         if (carte.peutSeDeplacer(positionJoueur.x - 1 - vx, positionJoueur.y) == 1) {
             if (vx > -maxX) {
                 vx -= ax;
@@ -54,9 +55,10 @@ struct Player {
             SDL_RenderClear(renderer);
             joueur = SDL_LoadBMP((std::string(RESOURCES_DIR) + gauche).c_str());
         }
+        return carte;
     }
 
-    void deplacerHaut(Carte carte) {
+    Carte deplacerHaut(Carte carte) {
         if (carte.peutSeDeplacer(positionJoueur.x, positionJoueur.y - 1 - vy) == 1) {
             if (vx > -maxY) {
                 vy -= ax;
@@ -65,10 +67,11 @@ struct Player {
             SDL_RenderClear(renderer);
             joueur = SDL_LoadBMP((std::string(RESOURCES_DIR) + haut).c_str());
         }
+        return carte;
     }
 
-    void deplacerBas(Carte carte) {
-        if (carte.peutSeDeplacer(positionJoueur.x, positionJoueur.y + 1 + vy) == 1) {
+    Carte deplacerBas(Carte carte) {
+        if (carte.peutSeDeplacer(positionJoueur.x, positionJoueur.y + 1 + 57 + vy) == 1) {
             if (vy < maxY) {
                 vy += ax;
             }
@@ -76,6 +79,7 @@ struct Player {
             SDL_RenderClear(renderer);
             joueur = SDL_LoadBMP((std::string(RESOURCES_DIR) + bas).c_str());
         }
+        return carte;
     }
 
     void remiseAZeroAcceleration(){
